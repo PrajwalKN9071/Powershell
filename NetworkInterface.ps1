@@ -12,5 +12,5 @@ $Subnet= Get-AzVirtualNetworkSubnetConfig -Name $SubnetName -VirtualNetwork $Vir
 
 $NetworkInterfaceName="app-network"
 
-$NetworkInterface=New-AzNetworkInterface -Name $NetworkInterfaceName -ResourceGroupName $ResourceGroup -Location $Location `
+$NetworkInterface=New-AzNetworkInterface -Name $NetworkInterfaceName -ResourceGroupName $Resourcegroup -Location $Location `
 -Subnet $Subnet

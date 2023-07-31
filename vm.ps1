@@ -1,17 +1,26 @@
-﻿#Creating VM
-$Resourcegroup="powershell-grp"
+﻿$Vmname="app-vm"
+$VmSize= "Standard_DS2_v2"
 $Location="East US"
+$Resourcegroup="powershell-grp"
 
-$VnetName="app-vnet"
-$VnetAddressSpace="10.0.0.0/16"
+#Get-AzVMSize -Location 'East Asia'
 
-$SubnetName="SubnetA"
-$SubnetAddressSpace="10.0.0.0/24"
+$Credential =Get-Credential
 
 
-#Create subnet
-$SubnetA=New-AzVirtualNetworkSubnetConfig -Name $SubnetName -AddressPrefix $SubnetAddressSpace 
+$NetworkInterfaceName="app-network"
+$NetworkInterface=Get-AzNetworkInterface -Name $NetworkInterfaceName -ResourceGroupName $ResourceGroup
 
-#Create Vnet
-$app_vnet=New-AzVirtualNetwork -Name $VnetName -ResourceGroupName $Resourcegroup -Location $Location `
--AddressPrefix $VnetAddressSpace -Subnet $SubnetA 
+$VmConfig=New-AzVMConfig -VMName $Vmname -VMSize $VmSize 
+
+Set-AzVMOperatingSystem -VM $VmConfig -ComputerName $Vmname `
+-Credential $Credential -Windows
+
+Set-AzVMSourceImage -VM $VmConfig -PublisherName "MicrosoftWindowsServer" `
+-Offer "WindowsServer" -Skus "2019-Datacenter" -Version "latest"
+
+$Vm=Add-AzVMNetworkInterface -VM $VmConfig -Id $NetworkInterface.Id
+
+Set-AzVMBootDiagnostic -Disable -VM $Vm
+
+New-AzVM -ResourceGroupName $Resourcegroup -Location $Location -VM $Vm
